@@ -1,8 +1,17 @@
 import socket
+import time 
+import threading
 
 print("Starting a new server!!")
 
-
+def connect_a_client(conn,add):
+    print("New client connection established")
+    data = conn.recv(2048)
+    print("Data from client", data)
+    time.sleep(10)
+    conn.sendall(b"I have received data from you")
+    conn.close()
+    
 host = "localhost"
 port = 8082
 
@@ -17,16 +26,9 @@ server_socket.listen()
 
 print("server is listening!!")
 
-# accepting new connections
-conn, addr = server_socket.accept() 
-
-print("Connection Established!!")
-
-# receive data from client
-datareceived = conn.recv(2048)
-
-print("Data from Client: ", datareceived)
-
-conn.sendall(b"I have received data from you")
-conn.close()
-server_socket.close()
+while True:
+    # accepting new connections
+    conn, addr = server_socket.accept() 
+    # need to call this method on new thread
+    t = threading.Thread(target=connect_a_client, args=(conn,addr))
+    t.start()
